@@ -1,0 +1,17 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Los modelos de Ollama NO van al repo: ocupan GB y viven en el PC local.
+# Se descargan con "ollama pull" (ver README).
+*.gguf
+*.bin
+
+# Sistema
+Thumbs.db
+.DS_Store

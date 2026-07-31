@@ -1,0 +1,3 @@
+# Única dependencia externa del proyecto.
+# tkinter viene incluido con Python (en Windows y macOS).
+requests>=2.31.0
