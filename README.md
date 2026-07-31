@@ -104,11 +104,11 @@ ollama list
 **1. Clonar el repositorio**
 
 ```bash
-git clone https://github.com/martin15006/mi-chat-llm.git
+git clone https://github.com/martin15006/ollama.git
 ```
 
 ```bash
-cd mi-chat-llm
+cd ollama
 ```
 
 **2. Crear el entorno virtual**
@@ -170,7 +170,7 @@ Comportamientos que conviene conocer:
 ### Estructura del proyecto
 
 ```
-mi-chat-llm/
+ollama/
 ├── app/
 │   ├── __init__.py       # Módulo Python
 │   ├── llm_client.py     # Comunicación con la API de Ollama
