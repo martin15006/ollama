@@ -51,6 +51,7 @@ class ChatApp(ttk.Frame):
         self._cola: "queue.Queue[tuple[str, object]]" = queue.Queue()
         self._esperando = False
         self._tick = 0
+        self._tarea_cola: Optional[str] = None  # id del after() en curso
 
         master.title("Cliente de chat para Ollama")
         master.minsize(620, 460)
@@ -58,6 +59,11 @@ class ChatApp(ttk.Frame):
         self._construir()
         self._revisar_cola()
         self._comprobar_instalados()
+
+        # Al cerrar la ventana hay que cancelar el after() pendiente. Si no, Tk
+        # intenta ejecutar un callback cuyo widget ya no existe y escupe
+        # `invalid command name "..._revisar_cola"` en la consola.
+        self.bind("<Destroy>", self._al_destruir)
 
     # -- Construcción de la interfaz -----------------------------------------
 
@@ -216,8 +222,19 @@ class ChatApp(ttk.Frame):
 
         threading.Thread(target=tarea, daemon=True).start()
 
+    def _al_destruir(self, evento: tk.Event) -> None:
+        """Corta el ciclo de revisión cuando se cierra la ventana."""
+        if evento.widget is not self:
+            return  # el evento burbujea desde los hijos: solo interesa el propio
+        if self._tarea_cola is not None:
+            self.after_cancel(self._tarea_cola)
+            self._tarea_cola = None
+
     def _revisar_cola(self) -> None:
         """Se ejecuta en el hilo de la UI cada 100 ms."""
+        if not self.winfo_exists():
+            return
+
         try:
             while True:
                 tipo, dato = self._cola.get_nowait()
@@ -233,7 +250,7 @@ class ChatApp(ttk.Frame):
             pass
 
         self._animar_espera()
-        self.after(INTERVALO_COLA_MS, self._revisar_cola)
+        self._tarea_cola = self.after(INTERVALO_COLA_MS, self._revisar_cola)
 
     # -- Pintar resultados ----------------------------------------------------
 
