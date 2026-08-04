@@ -143,6 +143,48 @@ Solo si vas a regenerar las gráficas. La app **no** las necesita:
 pip install -r requirements-analisis.txt
 ```
 
+### Si `Activate.ps1` te da problemas (Windows)
+
+PowerShell puede bloquear la activación por su política de ejecución. No hace falta pelear
+con eso: se puede usar el Python del entorno directamente, sin activarlo.
+
+```bash
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+```bash
+.\.venv\Scripts\python.exe main.py
+```
+
+Errores frecuentes de tipeo: la opción es `-r requirements.txt` (no `--requirements.txt`),
+y para invocar pip desde un ejecutable de Python es `python.exe -m pip`, no `python.exe pip`.
+
+### Llevar el proyecto a otro computador
+
+> [!WARNING]
+> **No copies la carpeta `.venv`.** Un entorno virtual **no es portable**: guarda rutas
+> absolutas del equipo donde se creó (`C:\Users\TuUsuario\...`). Si lo comprimís y lo
+> descomprimís en otra máquina, el `activate` no va a funcionar, porque apunta a carpetas
+> que ahí no existen.
+
+Lo correcto es clonar el repositorio (el `.gitignore` ya deja el `.venv` afuera) y crear el
+entorno **en el equipo nuevo**, con los pasos 2 a 4 de arriba.
+
+Si ya copiaste la carpeta con el `.venv` adentro, no hay que empezar de cero: se borra el
+entorno viejo y se crea uno nuevo en el sitio.
+
+```bash
+Remove-Item -Recurse -Force .venv; python -m venv .venv
+```
+
+Y después el paso 4 (o la variante sin activar, de la sección anterior).
+
+> [!IMPORTANT]
+> En el equipo nuevo también hay que **instalar Ollama y descargar al menos un modelo**
+> (ver *Prerrequisitos*). Sin eso la ventana abre igual, pero al enviar un mensaje responde
+> `No pude conectarme a Ollama en http://localhost:11434`. Si es un equipo prestado o con
+> poco disco, alcanza con el más liviano: `ollama pull gemma2:2b` (~1.6 GB).
+
 ---
 
 ## Uso
@@ -313,6 +355,8 @@ respondidas, está en **[ANALISIS.md](ANALISIS.md)**.
 | `El modelo 'X' no está descargado` | Falta bajarlo: `ollama pull X`. |
 | `Ollama tardó más de 180 s en responder` | Modelo muy pesado para el equipo. Usá uno más chico o subí `TIMEOUT_POR_DEFECTO` en `app/llm_client.py`. |
 | `ModuleNotFoundError: No module named 'requests'` | Falta activar el entorno virtual o correr `pip install -r requirements.txt`. |
+| `activate` no hace nada, o PowerShell pide escribir `.\activate` | Estás llamando al script sin ruta. En PowerShell es `.\.venv\Scripts\Activate.ps1`. Más simple: no actives nada y usá `.\.venv\Scripts\python.exe main.py`. |
+| Copié la carpeta a otro PC y el entorno no funciona | El `.venv` no es portable: borralo y creá uno nuevo en ese equipo (ver *Llevar el proyecto a otro computador*). |
 | `ModuleNotFoundError: No module named 'tkinter'` (Linux) | `sudo apt install python3-tk` |
 | La primera respuesta tarda muchísimo | Normal: Ollama carga el modelo en RAM. La segunda es rápida. |
 | El modelo de 8B va lentísimo o traba el PC | Necesita ~5-6 GB de RAM libre. Cerrá el navegador y otras apps antes de usarlo. |
